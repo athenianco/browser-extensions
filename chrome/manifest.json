@@ -2,7 +2,7 @@
     "name": "Delivery Pipeline Metrics for GitHub",
     "author": "Athenian",
     "homepage_url": "https://github.com/athenianco/github-browser-extension",
-    "version": "1.0",
+    "version": "1.1",
     "description": "Adds another section in the GitHub PR view to present the pipeline stage timings calculated by Athenian.",
     "manifest_version": 2,
     "browser_action": {
@@ -28,5 +28,5 @@
         ],
         "js": ["insert_sidebar_item.js"]
     }],
-    "content_security_policy": "script-src 'self' 'sha256-dqSefP9TH5CP/GwLN0o4i0pXgYSTcdFWBMHWle6Sv70='; object-src 'self'"
+    "content_security_policy": "script-src 'self' 'sha256-4m6kinKizsKFzXHN3Wnlosb5T1E0k1DgbG/jRKJ2p8w='; object-src 'self'"
 }

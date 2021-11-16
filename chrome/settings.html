@@ -20,10 +20,24 @@
 <body>
     <textarea id="apikey" name="apikey" placeholder="Input your API key here." autofocus spellcheck="false" wrap="hard"></textarea>
     <script>
-        function setApiKey(e) {
-            chrome.storage.sync.set({"token": e.target.value});
+        let apikey = document.querySelector("textarea");
+
+        function loadedApiKey(items) {
+            if (!chrome.runtime.lastError && items.token) {
+                apikey.value = items.token;
+            }
         }
-        document.querySelector("textarea").addEventListener("input", setApiKey);
+
+        function savedApiKey() {
+            apikey.style.backgroundColor = chrome.runtime.lastError? "#ffcdd2" : "#c8e6c9";
+        }
+
+        function submitApiKey(e) {
+            chrome.storage.sync.set({"token": e.target.value}, savedApiKey);
+        }
+
+        apikey.addEventListener("input", submitApiKey);
+        chrome.storage.sync.get("token", loadedApiKey);
     </script>
 </body>
 </html>
