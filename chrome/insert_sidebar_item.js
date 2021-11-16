@@ -3,12 +3,25 @@ function insertPRPipelineTimings(model) {
     setTimeout(queryPRTimings, 60000);
     return;
   }
-  let timings = Object.entries(model.data[0].stage_timings).map(([k, v]) => [k, (v||[]).slice(0, -1)|0]);
-  const sum = timings.reduce((sum, [k, v]) => sum + v, 0);
-  timings = Object.assign({}, ...timings.map(([k, v]) => ({[k]: [v, v / sum]})));
+  let stage_timings = model.data[0].stage_timings;
+  let deploy_timings = {};
+  if (stage_timings["deploy"]) {
+    deploy_timings = Object.fromEntries(
+      Object.entries(stage_timings["deploy"]).map(
+        ([k, v]) => [k, v.slice(0, -1)|0]
+      )
+    )
+    delete stage_timings["deploy"];
+  }
+  let timings = Object.entries(stage_timings).map(([k, v]) => [k, (v||[]).slice(0, -1)|0]);
+  let max = timings.reduce((max, [k, v]) => (max > v? max : v), 0);
+  timings = Object.assign({}, ...timings.map(([k, v]) => ({[k]: [v, v / max]})));
   for (let stage of ["review", "merge", "release"]) {
     timings[stage] = timings[stage] || [0, 0];
   }
+  max = Object.values(deploy_timings).reduce((max, v) => (max > v? max : v), 0);
+  let deploy_bars = Object.entries(deploy_timings).map(([env, time]) => `         <div><span class="text-uppercase">Deploy to ${env}</span></div>
+         <div title="${time} seconds" class="athenian-progress athenian-deploy" style="width: ${(time / max) * 100}%;"></div>`);
   sidebar_item = `<div class="discussion-sidebar-item js-discussion-sidebar-item">
       <details class="details-reset details-overlay select-menu hx_rsm" id="athenian">    
         <summary class="discussion-sidebar-heading discussion-sidebar-toggle" aria-label="Delivery Pipeline - Athenian" role="button">
@@ -27,6 +40,7 @@ function insertPRPipelineTimings(model) {
          <div title="${timings["merge"][0]} seconds" class="athenian-progress athenian-merge"></div>
          <div><span class="text-uppercase">Release</span></div>
          <div title="${timings["release"][0]} seconds" class="athenian-progress athenian-release"></div>
+         ${deploy_bars.join("\n")}
          <style>
            .athenian-progress {
              height: 1em;
@@ -35,20 +49,23 @@ function insertPRPipelineTimings(model) {
              margin-bottom: 1em;
            }
            .athenian-wip {
-             background-color: #ff7427;
+             background-color: rgb(255, 116, 39);
              width: ${timings["wip"][1] * 100}%;
            }
            .athenian-review {
-             background-color: #ffc508;
+             background-color: rgb(255, 197, 8);
              width: ${timings["review"][1] * 100}%;
            }
            .athenian-merge {
-             background-color: #9260e2;
+             background-color: rgb(146, 96, 226);
              width: ${timings["merge"][1] * 100}%;
            }
            .athenian-release {
-             background-color: #2fcc71;
+             background-color: rgb(36, 199, 204);
              width: ${timings["release"][1] * 100}%;
+           }
+           .athenian-deploy {
+             background-color: #2fcc71;
            }
          </style>
       </div>
