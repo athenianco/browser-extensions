@@ -96,7 +96,6 @@ function queryPRTimings() {
       method: "POST",
       headers: headers,
       body: JSON.stringify({
-        account: 1,
         prs: [{
           repository: repo,
           numbers: [prNumber]
